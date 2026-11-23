@@ -137,6 +137,28 @@ The controller can invoke the executor as a subprocess and pass the execution re
 
 The exact invocation method should be coordinated with the controller team.
 
+## Security Verification Results
+
+The Ruby execution environment was tested using Docker.
+
+1. Memory Limit (256 MB)
+   Result: Passed.
+   Docker confirmed OOMKilled: true and Exit Code: 137.
+
+2. Network Isolation
+   Result: Passed.
+   External network connection was blocked with Errno::ENETUNREACH.
+
+3. Execution Timeout (5 seconds)
+   Result: Passed.
+   Infinite loop was terminated after 5 seconds.
+
+4. Container Cleanup
+   Result: Passed.
+   No remaining execution containers were found after timeout.
+
+All four security verification tests passed successfully.
+
 ⸻
 
 Group 7 – Ruby Module
