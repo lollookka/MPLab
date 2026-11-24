@@ -1,0 +1,43 @@
+# Local agent / OpenCode tooling
+.archify/
+.opencode/
+.cbmignore
+AGENTS.md
+opencode.json
+
+# Local Serena state
+.serena/
+
+# --- MPLab build artifacts ---
+
+# Python tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Compiled binaries and object files (C/C++/other compiled exercise outputs)
+*.o
+*.out
+a.out
+*.exe
+*.so
+*.dylib
+*.dll
+
+# Generic build/output dirs
+build/
+dist/
+bin/
+
+# Test/execution sandbox outputs
+.sandbox/
+tmp/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+
+# Secrets guard — never commit secrets
+.env
+.env.*
