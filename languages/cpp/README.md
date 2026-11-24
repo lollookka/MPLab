@@ -173,3 +173,107 @@ git add --chmod=+x languages/cpp/execute
 ```bash
 python3 -m unittest discover -s languages/cpp/tests -v
 ```
+
+## Concept demonstration (Task D)
+
+Five self-contained example programs live in `examples/`, one per course
+concept. Each compiles with plain `g++ file.cpp` (GCC 13.3.0, C++17), runs in
+milliseconds, and explains the concept in comments and output at the point it
+happens — so pasting one into the MPLab editor doubles as a lesson.
+
+### 1. `examples/01_data_types.cpp` — Static typing & data types
+
+`sizeof` and `numeric_limits` for `int`/`double`/`char`/`bool`, integer vs
+floating division, implicit narrowing, and a stdin integer echoed with its
+type's range. Key output (stdin `42`):
+
+```
+int    : 4 bytes, range -2147483648 .. 2147483647
+7 / 2      = 3          (int / int -> int, remainder dropped)
+7.0 / 2.0  = 3.5      (double / double -> double)
+double 3.14 -> int : 3 (fractional part lost, no error)
+You typed: 42
+It fits in 'int', whose range is -2147483648 .. 2147483647
+```
+
+*Look for:* the same `/` operator gives `3` or `3.5` depending on operand
+types — the type, not the operator, decides. Sample stdin: type `42` in
+MPLab's input box.
+
+### 2. `examples/02_scope_lifetime.cpp` — Scope, lifetime & RAII
+
+Nested-block shadowing, a stack int vs an explicitly `delete`d heap int, and
+an RAII `Resource` class printing construction/destruction order. Key output
+(stdin `db-connection`):
+
+```
+inside  block, x = inner (this x shadows the outer one)
+back outside, x = outer (inner x is destroyed, scope ended)
+  [acquire] resource 'db-connection' opened
+  [acquire] resource 'spare-conn' opened
+  [release] resource 'spare-conn' closed
+  [release] resource 'db-connection' closed
+```
+
+*Look for:* destruction in reverse construction order — the destructor runs
+at the closing brace with no `delete` anywhere. Sample stdin: type
+`db-connection`.
+
+### 3. `examples/03_type_checking.cpp` — Static type checking
+
+`const`-correctness, `auto` deduction printed via `typeid`, and a
+commented-out block that would NOT compile with the real GCC 13.3.0 error
+texts (e.g. `int x = "hello";` →
+`error: invalid conversion from 'const char*' to 'int' [-fpermissive]`).
+Key output:
+
+```
+auto 42    -> i
+auto 4.5   -> d
+auto 'c'   -> c
+auto string-> NSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+int(42) + double(4.5) = 46.5
+```
+
+*Look for:* the commented-out lines — uncommenting them makes g++ reject the
+file; that rejection is the type system. (`i`/`d`/`c` are GCC's mangled names
+for int/double/char.)
+
+### 4. `examples/04_parameter_passing.cpp` — Parameter passing
+
+By-value vs by-reference vs by-const-reference on one `std::string`, plus
+`std::move` handing over the string's buffer. Key output:
+
+```
+after by_value : "hello"  (copy was changed, original untouched)
+after by_ref   : "hello (modified in callee)"  (callee modified the caller's object)
+moved-from size: 0  moved-to size: 10
+```
+
+*Look for:* identical callee code, three different effects on the caller's
+object; the `const&` version literally cannot compile if it modifies.
+
+### 5. `examples/05_dynamic_binding.cpp` — Binding: static vs dynamic
+
+One `Dog` object called through an `Animal*`: the non-virtual call is bound
+statically by the declared type (base version runs, Dog's never reached), the
+virtual call is bound dynamically via the vtable (Dog's override runs). Key
+output:
+
+```
+non-virtual call (static binding, at compile time):
+  Animal::speak_nonvirtual (bound by declared type)
+virtual call (dynamic binding, at run time):
+  Dog::speak_virtual (reached via the vtable)
+through Dog*, Dog::speak_nonvirtual now runs:
+  Dog::speak_nonvirtual (never reached via Animal*)
+```
+
+*Look for:* the same pointer `a` of the same object producing two different
+functions — only the `virtual` one consults the object's real type at run
+time.
+
+**Running these in MPLab:** paste any file into the editor with language
+`cpp` and press Run. `01` and `02` read stdin: put a sample integer (e.g.
+`42`) or a sample resource name (e.g. `db-connection`) in the input box
+before running; the other three need no input.
