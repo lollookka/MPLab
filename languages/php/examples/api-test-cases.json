@@ -1,0 +1,59 @@
+{
+  "api_version": "1.0",
+  "endpoint": "POST /api/execute",
+  "cases": [
+    {
+      "name": "success.php",
+      "request": {
+        "language": "php",
+        "source_code": "<?php\n$number = (int) trim(fgets(STDIN));\necho \"Double of $number is \" . ($number * 2) . PHP_EOL;\n",
+        "stdin": "7\n"
+      },
+      "expected_fields": {
+        "status": "success",
+        "stdout": "Double of 7 is 14\n",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      "additional_checks": {
+        "execution_time_ms_min": 0
+      }
+    },
+    {
+      "name": "syntax_error.php",
+      "request": {
+        "language": "php",
+        "source_code": "<?php\necho \"First statement\"\necho \"Second statement\";\n",
+        "stdin": ""
+      },
+      "expected_fields": {
+        "status": "compile_error",
+        "stdout": "",
+        "exit_code": null,
+        "execution_time_ms": null
+      },
+      "additional_checks": {
+        "stderr_contains": "unexpected token \"echo\"",
+        "reported_line": 3
+      }
+    },
+    {
+      "name": "runtime_error.php",
+      "request": {
+        "language": "php",
+        "source_code": "<?php\n$numerator = 10;\necho $numerator / 0;\n",
+        "stdin": ""
+      },
+      "expected_fields": {
+        "status": "runtime_error",
+        "stdout": "",
+        "exit_code": 255
+      },
+      "additional_checks": {
+        "stderr_contains": "Division by zero",
+        "reported_line": 3,
+        "execution_time_ms_min": 0
+      }
+    }
+  ]
+}
